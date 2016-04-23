@@ -14,7 +14,7 @@ class Db < ActiveRecord::Base
             left join tmplum.mch1x c on c.matnr=a.matnr and c.charg=a.charg
         where a.mandt='168' and a.shkzg='S' and c.matnr is null) a
       where seq = 1
-   "
+    "
   end
 
 end
