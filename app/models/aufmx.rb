@@ -31,7 +31,7 @@ class Aufmx < Db
              decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip
         from sapsr3.aufm a
           join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg and b.aufnr <> ' '
-        where a.mandt='168' and a.rspos <> '0000' and a.aufnr=?)
+        where a.mandt='168' and a.rspos <> '0000' and a.aufnr=?
     "
     rows = Db.find_by_sql([sql, aufnr])
     rows.each do |row|
