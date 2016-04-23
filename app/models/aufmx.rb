@@ -1,5 +1,5 @@
 class Aufmx < Db
-  self.primary_key = :id
+  self.primary_key = :uuid
   self.table_name  = :aufmx
 
   def insert(aufnr)
