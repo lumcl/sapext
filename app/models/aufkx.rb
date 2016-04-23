@@ -2,6 +2,21 @@ class Aufkx < ActiveRecord::Base
   self.table_name  = :aufkx
   self.primary_key = :aufnr
 
+  def self.explosion
+    # update_bomlv
+    rows = Aufkx.where(xstat: 'B').order(bomlv: :desc)
+    rows.each do |row|
+      row.xstat = 'R'
+      row.save
+      aufmx = Aufmx.new
+      aufmx.insert(row.aufnr)
+      row.xstat = 'X'
+      row.xdate = Time.now.strftime('%Y%m%d')
+      row.xtime = Time.now.strftime('%H%M%S')
+      row.save
+    end
+  end
+
   def self.update_bomlv
     sql = "update tmplum.aufkx set xstat = ' ', bomlv = 0 where xstat <> 'X'"
     Db.connection.execute(sql)
@@ -50,7 +65,6 @@ class Aufkx < ActiveRecord::Base
       rescue
       end
     end
-
     return submos
   end
 
