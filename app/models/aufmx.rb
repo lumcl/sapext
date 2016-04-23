@@ -99,7 +99,7 @@ class Aufmx < Db
 
   def read_aufmx(row)
     sql     = "
-      select b.wemng,a.wip,a.rsnum,a.rspos,a.mblnr,a.mjahr,a.zeile,a.budat,a.bwart,
+      select b.wemng,a.wip,a.aufnr,a.rsnum,a.rspos,a.mblnr,a.mjahr,a.zeile,a.budat,a.bwart,
              b.matnr,a.charg,a.werks,a.menge,a.qty,a.meins,a.dmbtr,a.amt,
              to_char(rawtohex(sys_guid())) id
         from tmplum.aufmx a
