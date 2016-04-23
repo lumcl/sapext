@@ -33,7 +33,7 @@ class Aufmx < Db
           join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg and b.aufnr <> ' '
         where a.mandt='168' and a.rspos <> '0000' and a.aufnr=?)
     "
-    rows = Db.find_by_sql(sql, aufnr)
+    rows = Db.find_by_sql([sql, aufnr])
     rows.each do |row|
       Aufmx.create(aufnr:  row.aufnr,
                    wip:    'W',
@@ -102,7 +102,7 @@ class Aufmx < Db
         join sapsr3.afpo b on b.mandt='168' and b.aufnr=a.aufnr
         where a.aufnr=?
     "
-    records = Db.find_by_sql(sql, row.waufnr)
+    records = Db.find_by_sql([sql, row.waufnr])
     records.each do |record|
       Aufmx.create(
           aufnr: row.aufnr,
