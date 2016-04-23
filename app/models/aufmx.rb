@@ -29,14 +29,14 @@ class Aufmx < Db
              a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
              nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
              decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
-             to_char(rawtohex(sys_guid())) id
+             to_char(rawtohex(sys_guid())) uuid
         from sapsr3.aufm a
           join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg and b.aufnr <> ' '
         where a.mandt='168' and a.rspos <> '0000' and a.aufnr=?
     "
     rows = Db.find_by_sql([sql, aufnr])
     rows.each do |row|
-      Aufmx.create(id:     row.id,
+      Aufmx.create(uuid:     row.uuid,
                    aufnr:  row.aufnr,
                    wip:    'W',
                    rsnum:  row.rsnum,
@@ -66,14 +66,14 @@ class Aufmx < Db
 
   def read_ziebp023(row)
     sql     = "
-      select idnrk,menge,to_char(rawtohex(sys_guid())) id from sapsr3.ziebp023
+      select idnrk,menge,to_char(rawtohex(sys_guid())) uuid from sapsr3.ziebp023
         where mandt='168' and bnarea='2300' and bukrs='L400' and connr='E23070000001'
           and matnr=? and charg=?
     "
     records = Db.find_by_sql([sql, row.matnr, row.charg])
     records.each do |record|
       Aufmx.create(
-          id:      row.id,
+          uuid:      row.uuid,
           aufnr:   row.aufnr,
           wip:     'S',
           rsnum:   row.rsnum,
