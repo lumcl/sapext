@@ -28,14 +28,16 @@ class Aufmx < Db
              a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
              a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
              nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
-             decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip
+             decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
+             to_char(rawtohex(sys_guid())) id
         from sapsr3.aufm a
           join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg and b.aufnr <> ' '
         where a.mandt='168' and a.rspos <> '0000' and a.aufnr=?
     "
     rows = Db.find_by_sql([sql, aufnr])
     rows.each do |row|
-      Aufmx.create(aufnr:  row.aufnr,
+      Aufmx.create(id:     row.id,
+                   aufnr:  row.aufnr,
                    wip:    'W',
                    rsnum:  row.rsnum,
                    rspos:  row.rspos,
@@ -64,13 +66,14 @@ class Aufmx < Db
 
   def read_ziebp023(row)
     sql     = "
-      select idnrk,menge from sapsr3.ziebp023
+      select idnrk,menge,to_char(rawtohex(sys_guid())) id from sapsr3.ziebp023
         where mandt='168' and bnarea='2300' and bukrs='L400' and connr='E23070000001'
           and matnr=? and charg=?
     "
     records = Db.find_by_sql([sql, row.matnr, row.charg])
     records.each do |record|
       Aufmx.create(
+          id:      row.id,
           aufnr:   row.aufnr,
           wip:     'S',
           rsnum:   row.rsnum,
@@ -97,7 +100,8 @@ class Aufmx < Db
   def read_aufmx(row)
     sql     = "
       select b.wemng,a.wip,a.rsnum,a.rspos,a.mblnr,a.mjahr,a.zeile,a.budat,a.bwart,
-             b.matnr,a.charg,a.werks,a.menge,a.qty,a.meins,a.dmbtr,a.amt
+             b.matnr,a.charg,a.werks,a.menge,a.qty,a.meins,a.dmbtr,a.amt,
+             to_char(rawtohex(sys_guid())) id
         from tmplum.aufmx a
         join sapsr3.afpo b on b.mandt='168' and b.aufnr=a.aufnr
         where a.aufnr=?
@@ -105,29 +109,30 @@ class Aufmx < Db
     records = Db.find_by_sql([sql, row.waufnr])
     records.each do |record|
       Aufmx.create(
-          aufnr: row.aufnr,
-          wip: 'S',
-          rsnum: row.rsnum,
-          rspos: row.rspos,
-          mblnr: row.mblnr,
-          mjahr: row.mjahr,
-          zeile: row.zeile,
-          budat: row.budat,
-          bwart: row.bwart,
-          matnr: record.matnr,
-          charg: record.charg,
-          werks: record.werks,
-          menge: record.menge,
-          qty: (row.menge * record.menge) / record.wemng,
-          meins: row.meins,
-          dmbtr: record.dmbtr,
-          amt: (row.menge * record.dmbtr) / record.wemng,
-          waufnr: record.aufnr,
-          wrsnum: record.rsnum,
-          wrspos: record.rspos,
-          wmjahr: record.mjahr,
-          wmblnr: record.mblnr,
-          wzeile: record.zeile,
+          id:      row.id,
+          aufnr:   row.aufnr,
+          wip:     'S',
+          rsnum:   row.rsnum,
+          rspos:   row.rspos,
+          mblnr:   row.mblnr,
+          mjahr:   row.mjahr,
+          zeile:   row.zeile,
+          budat:   row.budat,
+          bwart:   row.bwart,
+          matnr:   record.matnr,
+          charg:   record.charg,
+          werks:   record.werks,
+          menge:   record.menge,
+          qty:     (row.menge * record.menge) / record.wemng,
+          meins:   row.meins,
+          dmbtr:   record.dmbtr,
+          amt:     (row.menge * record.dmbtr) / record.wemng,
+          waufnr:  record.aufnr,
+          wrsnum:  record.rsnum,
+          wrspos:  record.rspos,
+          wmjahr:  record.mjahr,
+          wmblnr:  record.mblnr,
+          wzeile:  record.zeile,
           wfactor: row.menge / record.wemng
       )
     end
