@@ -101,7 +101,7 @@ class Aufmx < Db
     sql     = "
       select b.wemng,a.wip,a.aufnr,a.rsnum,a.rspos,a.mblnr,a.mjahr,a.zeile,a.budat,a.bwart,
              b.matnr,a.charg,a.werks,a.menge,a.qty,a.meins,a.dmbtr,a.amt,
-             to_char(rawtohex(sys_guid())) id
+             to_char(rawtohex(sys_guid())) uuid
         from tmplum.aufmx a
         join sapsr3.afpo b on b.mandt='168' and b.aufnr=a.aufnr
         where a.aufnr=?
@@ -109,7 +109,7 @@ class Aufmx < Db
     records = Db.find_by_sql([sql, row.waufnr])
     records.each do |record|
       Aufmx.create(
-          id:      row.id,
+          uuid:      row.uuid,
           aufnr:   row.aufnr,
           wip:     'S',
           rsnum:   row.rsnum,
