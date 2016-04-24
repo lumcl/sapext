@@ -60,7 +60,7 @@ class Aufmx < Db
                    dmbtr:   row.dmbtr,
                    amt:     0,
                    waufnr:  row.waufnr,
-                   wmoqty:  row.mwoqty,
+                   wmoqty:  row.wmoqty,
                    wfactor: row.wfactor
       )
 
