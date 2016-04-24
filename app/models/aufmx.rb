@@ -29,7 +29,7 @@ class Aufmx < Db
         row.wmoqty  = 1
         row.wfactor = row.menge
       else
-        unless row.xstat.eql?('X')
+        unless row.xstat.eql?('')
           not_ready_mos.append(row.waufnr) unless not_ready_mos.include?(row.waufnr)
         end
         # 計算入庫數量, 沒有在resb posr的都認為是產出
@@ -41,7 +41,7 @@ class Aufmx < Db
     return not_ready_mos.join(',') if not_ready_mos.present?
 
     rows.each do |row|
-      row.wfactor = row.menge / row.wmoqty
+      wfactor = row.menge / row.wmoqty
       Aufmx.create(uuid:    row.uuid,
                    aufnr:   row.aufnr,
                    wip:     'W',
@@ -62,7 +62,7 @@ class Aufmx < Db
                    amt:     0,
                    waufnr:  row.waufnr,
                    wmoqty:  row.wmoqty,
-                   wfactor: row.wfactor
+                   wfactor: wfactor
       )
 
       if row.waufnr.eql?('ZIEBP023')
