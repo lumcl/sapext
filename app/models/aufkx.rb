@@ -12,6 +12,7 @@ class Aufkx < ActiveRecord::Base
       remark = aufmx.insert(row.aufnr)
       if remark.eql?('OK')
         row.xstat = 'X'
+        row.remark = ' '
       else
         row.xstat = 'E'
         row.remark = remark
