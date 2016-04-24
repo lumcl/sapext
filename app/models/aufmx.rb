@@ -35,13 +35,12 @@ class Aufmx < Db
         # 計算入庫數量, 沒有在resb posr的都認為是產出
         row.wmoqty  = get_wip_order_qty(row) #unless row.matnr.eql?(row.pmatnr)
       end
-      # row.wfactor = row.menge / row.wmoqty
+      row.wfactor = row.menge.to_f / row.wmoqty.to_f
     end
 
     return not_ready_mos.join(',') if not_ready_mos.present?
 
     rows.each do |row|
-      wfactor = row.menge / row.wmoqty
       Aufmx.create(uuid:    row.uuid,
                    aufnr:   row.aufnr,
                    wip:     'W',
@@ -62,7 +61,7 @@ class Aufmx < Db
                    amt:     0,
                    waufnr:  row.waufnr,
                    wmoqty:  row.wmoqty,
-                   wfactor: wfactor
+                   wfactor: row.wfactor
       )
 
       if row.waufnr.eql?('ZIEBP023')
