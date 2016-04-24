@@ -3,7 +3,7 @@ class Aufkx < ActiveRecord::Base
   self.primary_key = :aufnr
 
   def self.explosion
-    # update_bomlv
+    update_bomlv
     rows = Aufkx.where(xstat: 'B').order(bomlv: :desc)
     rows.each do |row|
       row.xstat = 'R'
