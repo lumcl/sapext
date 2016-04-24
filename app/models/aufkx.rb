@@ -9,8 +9,13 @@ class Aufkx < ActiveRecord::Base
       row.xstat = 'R'
       row.save
       aufmx = Aufmx.new
-      aufmx.insert(row.aufnr)
-      row.xstat = 'X'
+      remark = aufmx.insert(row.aufnr)
+      if remark.eql?('OK')
+        row.xstat = 'X'
+      else
+        row.xstat = 'E'
+        row.remark = remark
+      end
       row.xdate = Time.now.strftime('%Y%m%d')
       row.xtime = Time.now.strftime('%H%M%S')
       row.save
