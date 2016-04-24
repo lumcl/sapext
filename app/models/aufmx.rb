@@ -172,6 +172,6 @@ class Aufmx < Db
         from sapsr3.aufm a
         where a.mandt='168' and a.aufnr=? and rspos = '0000'
     "
-    Db.find_by_sql([sql, row.aufnr]).first.wmoqty
+    Db.find_by_sql([sql, row.waufnr]).first.wmoqty
   end
 end
