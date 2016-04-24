@@ -34,8 +34,8 @@ class Aufmx < Db
         end
         # 計算入庫數量, 沒有在resb posr的都認為是產出
         row.wmoqty  = get_wip_order_qty(row) #unless row.matnr.eql?(row.pmatnr)
-        row.wfactor = row.menge / row.wmoqty
       end
+      row.wfactor = row.menge / row.wmoqty
     end
 
     return not_ready_mos.join(',') if not_ready_mos.present?
