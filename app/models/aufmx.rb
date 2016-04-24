@@ -29,7 +29,7 @@ class Aufmx < Db
         row.wmoqty  = 1
         row.wfactor = row.menge
       else
-        unless row.xstat.eql?('')
+        unless row.xstat.eql?('X')
           not_ready_mos.append(row.waufnr) unless not_ready_mos.include?(row.waufnr)
         end
         # 計算入庫數量, 沒有在resb posr的都認為是產出
