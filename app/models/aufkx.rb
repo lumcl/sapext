@@ -51,12 +51,12 @@ class Aufkx < ActiveRecord::Base
           from sapsr3.aufm a
             join sapsr3.jest b on b.mandt='168' and b.objnr='OR'||a.aufnr and b.inact=' ' and b.stat in ('I0045','I0046')
             left join tmplum.mch1x c on c.matnr=a.matnr and c.charg=a.charg
-          where a.mandt='168' and a.rspos > 0 and a.aufnr in (?)
+          where a.mandt='168' and a.aufnr in (?)
       "
       records = Db.find_by_sql [sql, aufnrs[min..(max - 1)]]
       records.each do |row|
         aufkx[row.aufnr] = { stat: row.stat, chgnr: row.chgnr, bomlv: bomlv, xstat: 'B' }
-        if row.submo.present?
+        if row.submo.present? and not row.submo.eql?(row.aufnr)
           submos.append row.submo unless submos.include?(row.submo)
         end
       end
