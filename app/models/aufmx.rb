@@ -33,7 +33,7 @@ class Aufmx < Db
           not_ready_mos.append(row.waufnr) unless not_ready_mos.include?(row.waufnr)
         end
         # 計算入庫數量, 沒有在resb posr的都認為是產出
-        row.wmoqty  = get_wip_order_qty(row) #unless row.matnr.eql?(row.pmatnr)
+        row.wmoqty = get_wip_order_qty(row) #unless row.matnr.eql?(row.pmatnr)
       end
       row.wfactor = row.menge.to_f / row.wmoqty.to_f
     end
@@ -46,6 +46,8 @@ class Aufmx < Db
                    wip:     'W',
                    rsnum:   row.rsnum,
                    rspos:   row.rspos,
+                   orsnum:  row.rsnum,
+                   orspos:  row.rspos,
                    mblnr:   row.mblnr,
                    mjahr:   row.mjahr,
                    zeile:   row.zeile,
@@ -74,13 +76,14 @@ class Aufmx < Db
 
     # pure material direct insert to tmplum.aufmx
     sql = "
-      insert into tmplum.aufmx(aufnr,rsnum,rspos,mjahr,mblnr,zeile,budat,bwart,matnr,charg,werks,menge,meins,dmbtr,waufnr,qty,amt,wip)
+      insert into tmplum.aufmx(aufnr,rsnum,rspos,mjahr,mblnr,zeile,budat,bwart,matnr,charg,werks,menge,meins,dmbtr,waufnr,qty,amt,wip,orsnum,orspos)
         select * from (
           select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
                  a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
                  a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
                  nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
-                 decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip
+                 decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
+                 a.rsnum orsnum,a.rspos orspos
             from sapsr3.aufm a
               left join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg
             where a.mandt='168' and a.rspos <> '0000' and a.aufnr='#{aufnr}')
@@ -129,7 +132,7 @@ class Aufmx < Db
     sql     = '
       select a.wip,a.aufnr,a.rsnum,a.rspos,a.mblnr,a.mjahr,a.zeile,a.budat,a.bwart,
              a.matnr,a.charg,a.werks,a.menge,a.qty,a.meins,a.dmbtr,a.amt,
-             to_char(rawtohex(sys_guid())) uuid
+             to_char(rawtohex(sys_guid())) uuid, a.orsnum, a.orspos
         from tmplum.aufmx a
         where a.aufnr=?
     '
@@ -150,10 +153,10 @@ class Aufmx < Db
           charg:   record.charg,
           werks:   record.werks,
           menge:   record.menge,
-          qty:     record.menge * row.wfactor,
+          qty:     record.qty * row.wfactor,
           meins:   record.meins,
           dmbtr:   record.dmbtr,
-          amt:     record.dmbtr * row.wfactor,
+          amt:     record.amt * row.wfactor,
           waufnr:  record.aufnr,
           wrsnum:  record.rsnum,
           wrspos:  record.rspos,
@@ -161,7 +164,9 @@ class Aufmx < Db
           wmblnr:  record.mblnr,
           wzeile:  record.zeile,
           wfactor: row.wfactor,
-          wmoqty:  row.wmoqty
+          wmoqty:  row.wmoqty,
+          orsnum:  record.orsnum,
+          orspos:  record.orspos
       )
     end
   end
