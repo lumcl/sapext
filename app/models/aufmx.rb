@@ -7,20 +7,38 @@ class Aufmx < Db
     Db.connection.execute(sql)
 
     # wip material
-    sql           = "
-      select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
-             a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
-             a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
-             nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
-             decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
-             to_char(rawtohex(sys_guid())) uuid,
-             c.xstat,d.matnr pmatnr,d.wemng wmoqty, 0 wfactor
-        from sapsr3.aufm a
-          join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg and b.aufnr <> ' '
-          left join tmplum.aufkx c on c.aufnr=b.aufnr
-          left join sapsr3.afpo d on d.mandt='168' and d.aufnr=b.aufnr
-        where a.mandt='168' and a.rspos <> '0000' and a.aufnr=?
+    sql = "
+      select * from (
+        select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
+               a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
+               a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
+               nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
+               decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
+               to_char(rawtohex(sys_guid())) uuid,
+               c.xstat,d.matnr pmatnr,d.wemng wmoqty, 0 wfactor,
+               x.pwerk
+          from sapsr3.aufm a
+            join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg and b.aufnr <> ' '
+              left join sapsr3.afpo x on x.mandt='168' and x.aufnr=b.aufnr
+            left join tmplum.aufkx c on c.aufnr=b.aufnr
+            left join sapsr3.afpo d on d.mandt='168' and d.aufnr=b.aufnr
+          where a.mandt='168' and a.rspos <> '0000' and a.aufnr= ? ) a
+        where  not (nvl(a.waufnr,' ') = ' ' or substr(nvl(a.waufnr,' '),1,4) = '0014' or (nvl(a.pwerk,' ') <> '482A' and nvl(a.pwerk,' ') <> '481A'))
     "
+    # sql           = "
+    #   select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
+    #          a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
+    #          a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
+    #          nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
+    #          decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
+    #          to_char(rawtohex(sys_guid())) uuid,
+    #          c.xstat,d.matnr pmatnr,d.wemng wmoqty, 0 wfactor
+    #     from sapsr3.aufm a
+    #       join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg and b.aufnr <> ' '
+    #       left join tmplum.aufkx c on c.aufnr=b.aufnr
+    #       left join sapsr3.afpo d on d.mandt='168' and d.aufnr=b.aufnr
+    #     where a.mandt='168' and a.rspos <> '0000' and a.aufnr=?
+    # "
     rows          = Db.find_by_sql([sql, aufnr])
     # 檢查小MO是否已經展開, 如果沒有立刻停止
     not_ready_mos = []
@@ -75,20 +93,39 @@ class Aufmx < Db
 
 
     # pure material direct insert to tmplum.aufmx
+
+    # sql = "
+    #   insert into tmplum.aufmx(aufnr,rsnum,rspos,mjahr,mblnr,zeile,budat,bwart,matnr,charg,werks,menge,meins,dmbtr,waufnr,qty,amt,wip,orsnum,orspos)
+    #     select * from (
+    #       select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
+    #              a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
+    #              a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
+    #              nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
+    #              decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
+    #              a.rsnum orsnum,a.rspos orspos
+    #         from sapsr3.aufm a
+    #           left join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg
+    #         where a.mandt='168' and a.rspos <> '0000' and a.aufnr='#{aufnr}')
+    #       where waufnr=' '
+    # "
+
     sql = "
-      insert into tmplum.aufmx(aufnr,rsnum,rspos,mjahr,mblnr,zeile,budat,bwart,matnr,charg,werks,menge,meins,dmbtr,waufnr,qty,amt,wip,orsnum,orspos)
-        select * from (
-          select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
-                 a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
-                 a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
-                 nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
-                 decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
-                 a.rsnum orsnum,a.rspos orspos
-            from sapsr3.aufm a
-              left join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg
-            where a.mandt='168' and a.rspos <> '0000' and a.aufnr='#{aufnr}')
-          where waufnr=' '
+        insert into tmplum.aufmx(aufnr,rsnum,rspos,mjahr,mblnr,zeile,budat,bwart,matnr,charg,werks,menge,meins,dmbtr,waufnr,qty,amt,wip,orsnum,orspos)
+          select aufnr,rsnum,rspos,mjahr,mblnr,zeile,budat,bwart,matnr,charg,werks,menge,meins,dmbtr,waufnr,qty,amt,wip,orsnum,orspos
+            from(
+            select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
+                   a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
+                   a.meins,decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1)dmbtr,
+                   nvl(b.aufnr,' ') waufnr, decode(a.shkzg,'H',a.menge,a.menge*-1) qty,
+                   decode(a.shkzg,'H',a.dmbtr,a.dmbtr*-1) amt, 'M' wip,
+                   a.rsnum orsnum,a.rspos orspos,x.pwerk
+              from sapsr3.aufm a
+                left join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg
+                  left join sapsr3.afpo x on x.mandt='168' and x.aufnr=b.aufnr
+               where a.mandt='168' and a.rspos <> '0000' and a.aufnr='#{aufnr}') a
+            where (nvl(a.waufnr,' ') = ' ' or substr(nvl(a.waufnr,' '),1,4) = '0014' or (nvl(a.pwerk,' ') <> '482A' and nvl(a.pwerk,' ') <> '481A'))
     "
+
     Db.connection.execute(sql)
 
     return 'OK'
