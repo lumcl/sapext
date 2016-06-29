@@ -23,7 +23,8 @@ class Aufmx < Db
             left join tmplum.aufkx c on c.aufnr=b.aufnr
             left join sapsr3.afpo d on d.mandt='168' and d.aufnr=b.aufnr
           where a.mandt='168' and a.rspos <> '0000' and a.aufnr= ? ) a
-        where  not (nvl(a.waufnr,' ') = ' ' or substr(nvl(a.waufnr,' '),1,4) = '0014' or (nvl(a.pwerk,' ') <> '482A' and nvl(a.pwerk,' ') <> '481A'))
+        where  (not (nvl(a.waufnr,' ') = ' ' or substr(nvl(a.waufnr,' '),1,4) = '0014' or (nvl(a.pwerk,' ') <> '482A' and nvl(a.pwerk,' ') <> '481A')))
+               or waufnr = 'ZIEBP023'
     "
     # sql           = "
     #   select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
@@ -125,6 +126,7 @@ class Aufmx < Db
                   left join sapsr3.afpo x on x.mandt='168' and x.aufnr=b.aufnr
                where a.mandt='168' and a.rspos <> '0000' and a.aufnr='#{aufnr}') a
             where (nvl(a.waufnr,' ') = ' ' or substr(nvl(a.waufnr,' '),1,4) = '0014' or (nvl(a.pwerk,' ') <> '482A' and nvl(a.pwerk,' ') <> '481A'))
+                  and waufnr <> 'ZIEBP023'
     "
 
     Db.connection.execute(sql)
