@@ -123,7 +123,9 @@ class Aufmx < Db
           amt:     0,
           waufnr:  row.waufnr,
           wmoqty:  row.wmoqty,
-          wfactor: row.wfactor
+          wfactor: row.wfactor,
+          orsnum: 'P023',
+          orspos: '9999'
       )
     end
   end
