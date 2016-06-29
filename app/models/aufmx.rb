@@ -7,7 +7,7 @@ class Aufmx < Db
     Db.connection.execute(sql)
 
     # wip material
-    sql = "
+    sql           = "
       select * from (
         select a.aufnr,a.rsnum,a.rspos,a.mjahr,a.mblnr,a.zeile,a.budat,
                a.bwart,a.matnr,a.charg,a.werks,decode(a.shkzg,'H',a.menge,a.menge*-1)menge,
@@ -60,29 +60,29 @@ class Aufmx < Db
 
     rows.each do |row|
       Aufmx.create(
-          #uuid:    row.uuid,
-                   aufnr:   row.aufnr,
-                   wip:     'W',
-                   rsnum:   row.rsnum,
-                   rspos:   row.rspos,
-                   orsnum:  row.rsnum,
-                   orspos:  row.rspos,
-                   mblnr:   row.mblnr,
-                   mjahr:   row.mjahr,
-                   zeile:   row.zeile,
-                   budat:   row.budat,
-                   bwart:   row.bwart,
-                   matnr:   row.matnr,
-                   charg:   row.charg,
-                   werks:   row.werks,
-                   menge:   0,
-                   qty:     0,
-                   meins:   row.meins,
-                   dmbtr:   0,
-                   amt:     0,
-                   waufnr:  row.waufnr,
-                   wmoqty:  row.wmoqty,
-                   wfactor: row.wfactor
+          uuid:    UUID.new.generate(:compact),
+          aufnr:   row.aufnr,
+          wip:     'W',
+          rsnum:   row.rsnum,
+          rspos:   row.rspos,
+          orsnum:  row.rsnum,
+          orspos:  row.rspos,
+          mblnr:   row.mblnr,
+          mjahr:   row.mjahr,
+          zeile:   row.zeile,
+          budat:   row.budat,
+          bwart:   row.bwart,
+          matnr:   row.matnr,
+          charg:   row.charg,
+          werks:   row.werks,
+          menge:   0,
+          qty:     0,
+          meins:   row.meins,
+          dmbtr:   0,
+          amt:     0,
+          waufnr:  row.waufnr,
+          wmoqty:  row.wmoqty,
+          wfactor: row.wfactor
       )
 
       if row.waufnr.eql?('ZIEBP023')
@@ -141,7 +141,7 @@ class Aufmx < Db
     records = Db.find_by_sql([sql, row.matnr, row.charg])
     records.each do |record|
       Aufmx.create(
-          #uuid:    row.uuid,
+          uuid:    UUID.new.generate(:compact),
           aufnr:   row.aufnr,
           wip:     'S',
           rsnum:   row.rsnum,
@@ -162,8 +162,8 @@ class Aufmx < Db
           waufnr:  row.waufnr,
           wmoqty:  row.wmoqty,
           wfactor: row.wfactor,
-          orsnum: 'P023',
-          orspos: '9999'
+          orsnum:  'P023',
+          orspos:  '9999'
       )
     end
   end
@@ -179,7 +179,7 @@ class Aufmx < Db
     records = Db.find_by_sql([sql, row.waufnr])
     records.each do |record|
       Aufmx.create(
-          #uuid:    row.uuid,
+          uuid:    UUID.new.generate(:compact),
           aufnr:   row.aufnr,
           wip:     row.wip.eql?('W') ? 'W' : 'S',
           rsnum:   row.rsnum,
