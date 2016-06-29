@@ -6,6 +6,7 @@ gem 'rails', '4.2.6'
 gem 'ruby-oci8','~> 2.2.0.2'
 gem 'activerecord-oracle_enhanced-adapter', '~> 1.6.0'
 gem 'composite_primary_keys', '~> 8'
+gem 'uuid', '~> 2.3', '>= 2.3.8'
 # Use SCSS for stylesheets
 # gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
