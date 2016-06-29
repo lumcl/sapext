@@ -59,7 +59,8 @@ class Aufmx < Db
     return not_ready_mos.join(',') if not_ready_mos.present?
 
     rows.each do |row|
-      Aufmx.create(uuid:    row.uuid,
+      Aufmx.create(
+          #uuid:    row.uuid,
                    aufnr:   row.aufnr,
                    wip:     'W',
                    rsnum:   row.rsnum,
@@ -140,7 +141,7 @@ class Aufmx < Db
     records = Db.find_by_sql([sql, row.matnr, row.charg])
     records.each do |record|
       Aufmx.create(
-          uuid:    row.uuid,
+          #uuid:    row.uuid,
           aufnr:   row.aufnr,
           wip:     'S',
           rsnum:   row.rsnum,
@@ -178,7 +179,7 @@ class Aufmx < Db
     records = Db.find_by_sql([sql, row.waufnr])
     records.each do |record|
       Aufmx.create(
-          uuid:    row.uuid,
+          #uuid:    row.uuid,
           aufnr:   row.aufnr,
           wip:     row.wip.eql?('W') ? 'W' : 'S',
           rsnum:   row.rsnum,
