@@ -22,7 +22,7 @@ class MonthEnd
 
     sql = "
       insert into tmplum.aufkx(aufnr,stat,chgnr,bomlv,xstat,xdate,xtime,remark)
-        select a.aufnr,b.stat,b.chgnr,0 bomlv,' ' xstat, ' ' xdate, ' ' xtime, ' ' remark
+        select a.aufnr,b.stat,b.chgnr,0 bomlv,' ' xstat, ' ' xdate, ' ' xtime, 'KE30' remark
           from sapsr3.aufk a
             left join sapsr3.jest b on b.mandt=a.mandt and b.objnr=a.objnr and b.inact=' ' and b.stat in ('I0045','I0046')
             left join tmplum.aufkx d on d.aufnr=a.aufnr
