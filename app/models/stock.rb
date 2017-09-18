@@ -34,7 +34,7 @@ class Stock
 
     sql = "
       select matnr,werks,charg,lgort,budat,bal_qty,alc_qty,uuid,
-             clabs,cumlm,cinsm,ceinm,cspem,cretm,
+             clabs,cumlm,cinsm,ceinm,cspem,cretm,lbkum,salk3,
              case
                when werks='101A' and lgort in ('RM01','RM02','RM03','RM06') then lgort else '****'
              end sto_lgort
@@ -85,9 +85,9 @@ class Stock
       values = []
       stk_mchbs.pop(500).each do |row|
         puts "#{row.matnr}"
-        values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}' from dual")
+        values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}',#{row.lbkum},#{row.salk3} from dual")
       end
-      sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid) #{values.join(' union all ')}"
+      sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid,lbkum,salk3) #{values.join(' union all ')}"
       Db.connection.execute(sql)
     end
 
