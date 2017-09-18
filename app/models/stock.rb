@@ -93,7 +93,7 @@ class Stock
     puts "update tmplum.mchbx"
     while stk_mchbs.present?
       values = []
-      stk_mchbs.pop(500).each do |row|
+      stk_mchbs.pop(2).each do |row|
         values.append ("select '#{row.uuid}' uuid, #{row.alc_qty} alc_qty, #{row.bal_qty} bal_qty from dual")
       end
       sql = "merge into tmplum.mchbx a using (( #{values.join(' union all ')})) b on (b.uuid = a.uuid) when matched then update set a.alc_qty = b.alc_qty, a.bal_qty = b.bal_qty"
