@@ -20,16 +20,24 @@ class Stock
 
     stock_hash = {}
 
+    # sql = "
+    #  select  a.matnr,a.werks,a.charg,a.clabs,a.cumlm,a.cinsm,a.ceinm,a.cspem,a.cretm,
+    #          nvl(b.budat,to_char(sysdate,'YYYYMMDD')) budat,
+    #          (a.clabs+a.cumlm+a.cinsm+a.ceinm+a.cspem+a.cretm) bal_qty, 0 alc_qty,lgort,
+    #          case
+    #            when werks='101A' and lgort in ('RM01','RM02','RM03','RM06') then lgort else '****'
+    #          end sto_lgort, rawtohex(sys_guid()) uuid
+    #     from sapsr3.mchb a
+    #       left join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg
+    #   where a.mandt='168' and (a.clabs+a.cumlm+a.cinsm+a.ceinm+a.cspem+a.cretm) > 0
+    # "
+
     sql = "
-     select  a.matnr,a.werks,a.charg,a.clabs,a.cumlm,a.cinsm,a.ceinm,a.cspem,a.cretm,
-             nvl(b.budat,to_char(sysdate,'YYYYMMDD')) budat,
-             (a.clabs+a.cumlm+a.cinsm+a.ceinm+a.cspem+a.cretm) bal_qty, 0 alc_qty,lgort,
+      select matnr,werks,charg,lgort,budat,bal_qty,alc_qty,uuid,
              case
                when werks='101A' and lgort in ('RM01','RM02','RM03','RM06') then lgort else '****'
-             end sto_lgort, rawtohex(sys_guid()) uuid
-        from sapsr3.mchb a
-          left join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg
-      where a.mandt='168' and (a.clabs+a.cumlm+a.cinsm+a.ceinm+a.cspem+a.cretm) > 0
+             end sto_lgort
+        from tmplum.mchbx
     "
     Db.find_by_sql(sql).each do |row|
       array = stock_hash.key?("#{row.matnr}.#{row.werks}.#{row.sto_lgort}") ? stock_hash["#{row.matnr}.#{row.werks}.#{row.sto_lgort}"] : []
@@ -72,15 +80,27 @@ class Stock
     #matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid
 
     stk_mchbs = stock_hash.values.flatten
+    # while stk_mchbs.present?
+    #   values = []
+    #   stk_mchbs.pop(500).each do |row|
+    #     puts "#{row.matnr}"
+    #     values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}' from dual")
+    #   end
+    #   sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid) #{values.join(' union all ')}"
+    #   Db.connection.execute(sql)
+    # end
+
+    puts "update tmplum.mchbx"
     while stk_mchbs.present?
       values = []
       stk_mchbs.pop(500).each do |row|
-        puts "#{row.matnr}"
-        values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}' from dual")
+        values.append ("select '#{row.uuid}' uuid, #{row.alc_qty} alc_qty, #{row.bal_qty} bal_qty from dual")
       end
-      sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid) #{values.join(' union all ')}"
+      sql = "merge into tmplum.mchbx a using (( #{values.join(' union all ')})) b on (b.uuid = a.uuid) when matched then update set a.alc_qty = b.alc_qty, a.bal_qty = b.bal_qty"
       Db.connection.execute(sql)
     end
+
+
     #werks,matnr,delkz,delnr,del12,delps,delet,dat00,mng01,bal_qty,alc_qty,uuid
     puts "insert stk_mrp"
     while reqs.present?
