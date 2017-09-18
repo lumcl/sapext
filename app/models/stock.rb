@@ -34,6 +34,7 @@ class Stock
 
     sql = "
       select matnr,werks,charg,lgort,budat,bal_qty,alc_qty,uuid,
+             clabs,cumlm,cinsm,ceinm,cspem,cretm,
              case
                when werks='101A' and lgort in ('RM01','RM02','RM03','RM06') then lgort else '****'
              end sto_lgort
@@ -80,25 +81,25 @@ class Stock
     #matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid
 
     stk_mchbs = stock_hash.values.flatten
-    # while stk_mchbs.present?
-    #   values = []
-    #   stk_mchbs.pop(500).each do |row|
-    #     puts "#{row.matnr}"
-    #     values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}' from dual")
-    #   end
-    #   sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid) #{values.join(' union all ')}"
-    #   Db.connection.execute(sql)
-    # end
-
-    puts "update tmplum.mchbx"
     while stk_mchbs.present?
       values = []
-      stk_mchbs.pop(2).each do |row|
-        values.append ("select '#{row.uuid}' uuid, #{row.alc_qty} alc_qty, #{row.bal_qty} bal_qty from dual")
+      stk_mchbs.pop(500).each do |row|
+        puts "#{row.matnr}"
+        values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}' from dual")
       end
-      sql = "merge into tmplum.mchbx a using (( #{values.join(' union all ')})) b on (b.uuid = a.uuid) when matched then update set a.alc_qty = b.alc_qty, a.bal_qty = b.bal_qty"
+      sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid) #{values.join(' union all ')}"
       Db.connection.execute(sql)
     end
+
+    # puts "update tmplum.mchbx"
+    # while stk_mchbs.present?
+    #   values = []
+    #   stk_mchbs.pop(2).each do |row|
+    #     values.append ("select '#{row.uuid}' uuid, #{row.alc_qty} alc_qty, #{row.bal_qty} bal_qty from dual")
+    #   end
+    #   sql = "merge into tmplum.mchbx a using (( #{values.join(' union all ')})) b on (b.uuid = a.uuid) when matched then update set a.alc_qty = b.alc_qty, a.bal_qty = b.bal_qty"
+    #   Db.connection.execute(sql)
+    # end
 
 
     #werks,matnr,delkz,delnr,del12,delps,delet,dat00,mng01,bal_qty,alc_qty,uuid
