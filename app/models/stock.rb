@@ -7,16 +7,18 @@ class Stock
 
     sto = {}
     sto['101A'] = %w[101A]
-    sto['111A'] = %w[111A 282A]
+    sto['111A'] = %w[111A 282A 101A.L106 101A.L128]
     sto['112A'] = %w[112A]
     sto['281A'] = %w[281A]
     sto['282A'] = %w[282A]
-    sto['381A'] = %w[381A 701A 101A.RM03 101A.RM05 101A.RM06 921A]
+    sto['381A'] = %w[381A 701A 101A.RM03 101A.RM04 101A.RM05 101A.RM06 101A.FGR2 101A.L107 101A.L108 101A.L110 101A.L112 101A.L117 101A.L118 101A.L119 101A.L123 101A.L124 101A.L125 101A.L128 101A.L129 101A.L130 101A.L131 101A.L132 101A.L133 101A.L136 101A.L137 101A.L138 101A.PHTX 921A]
     sto['382A'] = %w[382A]
-    sto['481A'] = %w[481A 101A.RM01]
+    sto['481A'] = %w[481A 101A.RM01 101A.FGR1 101A.L101 101A.L109 101A.L111 101A.L134 101A.L135 101A.PHDT]
     sto['482A'] = %w[482A 101A.RM02]
     sto['921A'] = %w[921A]
     sto['701A'] = %w[701A]
+
+    sto_lgorts = sto.values.flatten.select{|a| a.size > 4}
 
     stock_hash = {}
 
@@ -34,16 +36,14 @@ class Stock
 
     sql = "
       select matnr,werks,charg,lgort,budat,bal_qty,alc_qty,uuid,
-             clabs,cumlm,cinsm,ceinm,cspem,cretm,lbkum,salk3,
-             case
-               when werks='101A' and lgort in ('RM01','RM02','RM03','RM06') then lgort else '****'
-             end sto_lgort
+             clabs,cumlm,cinsm,ceinm,cspem,cretm,lbkum,salk3
         from tmplum.mchbx
     "
     Db.find_by_sql(sql).each do |row|
-      array = stock_hash.key?("#{row.matnr}.#{row.werks}.#{row.sto_lgort}") ? stock_hash["#{row.matnr}.#{row.werks}.#{row.sto_lgort}"] : []
+      sto_lgort = sto_lgorts.include?("#{row.werks}.#{row.lgort}") ? row.lgort : '****'
+      array = stock_hash.key?("#{row.matnr}.#{row.werks}.#{sto_lgort}") ? stock_hash["#{row.matnr}.#{row.werks}.#{sto_lgort}"] : []
       array.append(row)
-      stock_hash["#{row.matnr}.#{row.werks}.#{row.sto_lgort}"] = array
+      stock_hash["#{row.matnr}.#{row.werks}.#{sto_lgort}"] = array
     end
 
     stk_alocs = []
@@ -84,7 +84,6 @@ class Stock
     while stk_mchbs.present?
       values = []
       stk_mchbs.pop(500).each do |row|
-        puts "#{row.matnr}"
         values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}',#{row.lbkum},#{row.salk3} from dual")
       end
       sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid,lbkum,salk3) #{values.join(' union all ')}"
