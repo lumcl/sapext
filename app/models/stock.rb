@@ -48,18 +48,22 @@ class Stock
 
     stk_alocs = []
     sql = "
-      select werks,matnr,delkz,delnr,del12,delps,delet,dat00,
+      select werks,matnr,delkz,delnr,del12,delps,delet,dat00,lgort,
              mng01,mng01 bal_qty,0 alc_qty,rawtohex(sys_guid()) uuid, kunnr
         from sapsr3.zsd0012
       where mandt='168' and mng01 > 0 and plumi='-' and delkz not in ('U1','U2','U3')
+            and kunnr not in ('L100','L111','L210','L300','L400','L700','L920')
     "
     reqs = Db.find_by_sql(sql)
     reqs.group_by(&:matnr).each do |matnr, werks|
       werks.group_by(&:werks).each do |werks, rows|
         rows.each do |req|
-          puts "#{matnr},#{werks}"
           sto["#{werks}"].each do |supply_werks|
-            stocks = supply_werks.size == 4 ? stock_hash["#{matnr}.#{supply_werks}.****"] : stock_hash["#{matnr}.#{supply_werks[0..3]}.#{supply_werks[5..8]}"]
+            if sto_lgorts.include?("#{supply_werks}.#{req.lgort}")
+              stocks = stock_hash["#{matnr}.#{supply_werks}.#{req.lgort}"]
+            else
+              stocks = supply_werks.size == 4 ? stock_hash["#{matnr}.#{supply_werks}.****"] : stock_hash["#{matnr}.#{supply_werks[0..3]}.#{supply_werks[5..8]}"]
+            end
             if stocks.present?
               stocks.each do |stock|
                 if stock.bal_qty > 0
