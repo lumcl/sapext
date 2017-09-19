@@ -15,8 +15,8 @@ class Stock
     sto['382A'] = %w[382A]
     sto['481A'] = %w[481A 101A.RM01 101A.FGR1 101A.L101 101A.L109 101A.L111 101A.L134 101A.L135 101A.PHDT]
     sto['482A'] = %w[482A 101A.RM02]
-    sto['921A'] = %w[921A]
-    sto['701A'] = %w[701A]
+    sto['921A'] = %w[921A 101A]
+    sto['701A'] = %w[701A 381A]
 
     sto_lgorts = sto.values.flatten.select{|a| a.size > 4}
 
