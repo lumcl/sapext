@@ -23,11 +23,11 @@ class Stock
     sto['112A'] = %w[112A]
     sto['281A'] = %w[281A]
     sto['282A'] = %w[282A 111A]
-    sto['381A'] = %w[381A 701A 101A.RM03 101A.RM04 101A.RM05 101A.RM06 101A.PHTX]
+    sto['381A'] = %w[381A 701A 101A.RM03A 101A.RM04 101A.RM05 101A.RM06 101A.PHTX]
     sto['382A'] = %w[382A]
     sto['481A'] = %w[481A 101A.RM01 101A.PHDT]
     sto['482A'] = %w[482A 101A.RM02]
-    sto['921A'] = %w[921A 101A 481A]
+    sto['921A'] = %w[921A 101A 481A 701A 381A]
     sto['701A'] = %w[701A 381A]
 
     sto_lgorts = sto.values.flatten.select{|a| a.size > 4}
