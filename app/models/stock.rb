@@ -1,8 +1,12 @@
 class Stock
 
   def self.allocation
+    #Db.connection.execute("truncate table stk_mchb_log")
+    Db.connection.execute("insert into stk_mchb_log select * from stk_mchb where to_char(created_at,'YYYYMMDD') < to_char(sysdate,'YYYYMMDD')")
     Db.connection.execute('truncate table stk_mchb')
+    Db.connection.execute("insert into stk_mrp_log select * from stk_mrp where to_char(created_at,'YYYYMMDD') < to_char(sysdate,'YYYYMMDD')")
     Db.connection.execute('truncate table stk_mrp')
+    Db.connection.execute("insert into stk_aloc_log select * from stk_aloc where to_char(created_at,'YYYYMMDD') < to_char(sysdate,'YYYYMMDD')")
     Db.connection.execute('truncate table stk_aloc')
 
     sto = {}
