@@ -51,16 +51,20 @@ class Stock
     # "
 
     sql = "
-      select matnr,werks,charg,lgort,budat,bal_qty,alc_qty,uuid,
-             clabs,cumlm,cinsm,ceinm,cspem,cretm,lbkum,salk3,
+      select a.matnr,a.werks,a.charg,a.lgort,a.budat,a.bal_qty,a.alc_qty,a.uuid,
+             a.clabs,a.cumlm,a.cinsm,a.ceinm,a.cspem,a.cretm,a.lbkum,a.salk3,
              case
+               when werks = '101A' and c.werks in ('111A','112A') then 'PH'
+               when werks = '101A' and c.werks in ('481A','482A') then 'DT'
                when werks = '101A' and lgort in ('RM01','RM02','FGR1','L101','L109','L111','L134','L135','PHDT','L127') then 'DT'
                when werks = '101A' and lgort in ('L106','L128') then 'PH'
                when werks in ('481A','482A') then 'DT'
                when werks in ('111A','112A','282A') then 'PH'
                else 'TX'
              end vtweg
-        from tmplum.mchbx
+        from tmplum.mchbx a
+          left join tmplum.mch1x b on b.matnr=a.matnr and b.charg=a.charg
+          left join sapsr3.mseg  c on c.mandt='168' and c.mjahr=b.mjahr and c.mblnr=b.mblnr and c.zeile=b.zeile
     "
     Db.find_by_sql(sql).each do |row|
       sto_lgort = sto_lgorts.include?("#{row.werks}.#{row.lgort}") ? row.lgort : '****'
