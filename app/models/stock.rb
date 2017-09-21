@@ -54,10 +54,10 @@ class Stock
       select matnr,werks,charg,lgort,budat,bal_qty,alc_qty,uuid,
              clabs,cumlm,cinsm,ceinm,cspem,cretm,lbkum,salk3,
              case
-               when a.werks = '101A' and a.lgort in ('RM01','RM02','FGR1','L101','L109','L111','L134','L135','PHDT') then 'DT'
-               when a.werks = '101A' and a.lgort in ('L106','L128') then 'PH'
-               when a.werks in ('481A','482A') then 'DT'
-               when a.werks in ('111A','112A','282A') then 'PH'
+               when werks = '101A' and lgort in ('RM01','RM02','FGR1','L101','L109','L111','L134','L135','PHDT') then 'DT'
+               when werks = '101A' and lgort in ('L106','L128') then 'PH'
+               when werks in ('481A','482A') then 'DT'
+               when werks in ('111A','112A','282A') then 'PH'
                else 'TX'
              end vtweg
         from tmplum.mchbx
