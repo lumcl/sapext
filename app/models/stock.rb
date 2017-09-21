@@ -52,7 +52,14 @@ class Stock
 
     sql = "
       select matnr,werks,charg,lgort,budat,bal_qty,alc_qty,uuid,
-             clabs,cumlm,cinsm,ceinm,cspem,cretm,lbkum,salk3
+             clabs,cumlm,cinsm,ceinm,cspem,cretm,lbkum,salk3,
+             case
+               when a.werks = '101A' and a.lgort in ('RM01','RM02','FGR1','L101','L109','L111','L134','L135','PHDT') then 'DT'
+               when a.werks = '101A' and a.lgort in ('L106','L128') then 'PH'
+               when a.werks in ('481A','482A') then 'DT'
+               when a.werks in ('111A','112A','282A') then 'PH'
+               else 'TX'
+             end vtweg
         from tmplum.mchbx
     "
     Db.find_by_sql(sql).each do |row|
@@ -104,9 +111,9 @@ class Stock
     while stk_mchbs.present?
       values = []
       stk_mchbs.pop(500).each do |row|
-        values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}',#{row.lbkum},#{row.salk3} from dual")
+        values.append("select '#{row.matnr}','#{row.werks}','#{row.charg}','#{row.clabs}','#{row.cumlm}','#{row.cinsm}','#{row.ceinm}','#{row.cspem}','#{row.cretm}','#{row.budat}','#{row.bal_qty}','#{row.alc_qty}','#{row.lgort}','#{row.uuid}',#{row.lbkum},#{row.salk3},#{row.vtweg} from dual")
       end
-      sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid,lbkum,salk3) #{values.join(' union all ')}"
+      sql = "insert into tmplum.stk_mchb(matnr,werks,charg,clabs,cumlm,cinsm,ceinm,cspem,cretm,budat,bal_qty,alc_qty,lgort,uuid,lbkum,salk3,vtweg) #{values.join(' union all ')}"
       Db.connection.execute(sql)
     end
 
